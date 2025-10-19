@@ -91,4 +91,4 @@ private:
     static BigInt PositiveDiffStrict(const BigInt& larger, const BigInt& smaller);
     static BigInt Subtract(const BigInt& a, const BigInt& b);
 };
-ЫЫ
+
