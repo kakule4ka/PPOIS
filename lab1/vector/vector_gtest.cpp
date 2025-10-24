@@ -1,3 +1,4 @@
+// vector_tests.cpp
 #include <gtest/gtest.h>
 #include "vector.h"
 #include <sstream>
@@ -54,22 +55,36 @@ TEST_F(vector_gtest, AdditionSubtractionAndAssignments) {
     EXPECT_TRUE(t == expected_diff);
 }
 
-TEST_F(vector_gtest, ScalarMultiplicationAndAssignment) {
+TEST_F(vector_gtest, ScalarMultiplicationAndAssignmentWithDoubleAndInt) {
     vector mul = v_a * 2.5;
     EXPECT_NEAR(mul.size(), std::sqrt(2.5*2.5 + 5.0*5.0 + 7.5*7.5), EPS);
+    vector mul_int = v_a * 2;
+    EXPECT_TRUE(mul_int == vector(2.0, 4.0, 6.0));
+    vector mul_comm = 2 * v_a;
+    EXPECT_TRUE(mul_comm == mul_int);
     vector t = v_a;
     t *= -1.0;
     EXPECT_TRUE(t == vector(-1.0, -2.0, -3.0));
+    t = v_a;
+    t *= 3;
+    EXPECT_TRUE(t == vector(3.0, 6.0, 9.0));
 }
 
-TEST_F(vector_gtest, ScalarDivisionAndAssignment) {
+TEST_F(vector_gtest, ScalarDivisionAndAssignmentWithDoubleAndInt) {
     vector div = v_a / 2.0;
     EXPECT_TRUE(div == vector(0.5, 1.0, 1.5));
+    vector div_int = v_a / 2;
+    EXPECT_TRUE(div_int == vector(0.5, 1.0, 1.5));
     vector t = v_a;
     t /= 2.0;
     EXPECT_TRUE(t == div);
+    t = v_a;
+    t /= 2;
+    EXPECT_TRUE(t == div);
     EXPECT_THROW(v_a / 0.0, std::invalid_argument);
     EXPECT_THROW(v_a /= 0.0, std::invalid_argument);
+    EXPECT_THROW(v_a / 0, std::invalid_argument);
+    EXPECT_THROW(v_a /= 0, std::invalid_argument);
 }
 
 TEST_F(vector_gtest, ElementwiseDivisionByVectorAndAssignment) {
@@ -150,5 +165,3 @@ int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
-
-
