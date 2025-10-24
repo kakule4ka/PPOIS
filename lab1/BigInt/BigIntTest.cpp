@@ -11,6 +11,8 @@ protected:
     BigInt neg_medium = BigInt("-98765432109876543210");
     BigInt pos_large = BigInt("123456789012345678901234567890"); // 4 words
     BigInt neg_large = BigInt("-999999999999999999999999999999");
+    BigInt max_single = BigInt("999999999");
+    BigInt min_double = BigInt("1000000000");
 };
 
 static std::string to_str(const BigInt& v) {
@@ -80,13 +82,6 @@ TEST_F(BigIntTest, AddSubBigInt) {
     EXPECT_EQ(to_str(zero - pos_small), "-42");
 }
 
-TEST_F(BigIntTest, DivBigInt) {
-    EXPECT_EQ(to_str((pos_medium * BigInt(2)) / pos_medium), "2");
-    EXPECT_EQ(to_str(neg_medium / BigInt(2)), "-49382716054938271605");
-    EXPECT_THROW(pos_medium / zero, std::invalid_argument);
-}
-
-// Compound BigInt
 TEST_F(BigIntTest, MulBigInt) {
     // Простые случаи
     BigInt a(123);
@@ -100,26 +95,63 @@ TEST_F(BigIntTest, MulBigInt) {
     EXPECT_EQ(to_str(zero * pos_large), "0");
     EXPECT_EQ(to_str(pos_large * zero), "0");
     
-    // Умножение отрицательных - УПРОЩЕННАЯ ПРОВЕРКА
+    // Умножение отрицательных
     BigInt neg_result = neg_small * pos_medium;
-    // Временно проверяем только что результат отрицательный
     EXPECT_TRUE(neg_result < zero);
+    
+    // Большие числа
+    BigInt huge1("123456789012345678901234567890");
+    BigInt huge2("2");
+    EXPECT_EQ(to_str(huge1 * huge2), "246913578024691357802469135780");
 }
 
+TEST_F(BigIntTest, DivBigInt) {
+    EXPECT_EQ(to_str((pos_medium * BigInt(2)) / pos_medium), "2");
+    EXPECT_EQ(to_str(neg_medium / BigInt(2)), "-49382716054938271605");
+    EXPECT_THROW(pos_medium / zero, std::invalid_argument);
+    
+    // Деление больших чисел
+    BigInt huge("123456789012345678901234567890");
+    EXPECT_EQ(to_str(huge / BigInt(10)), "12345678901234567890123456789");
+}
+
+// Составные присваивания с BigInt
+TEST_F(BigIntTest, CompoundBigInt) {
+    BigInt t = pos_small;
+    t += pos_medium;
+    EXPECT_EQ(to_str(t), "12345678901234567932");
+
+    t = pos_medium;
+    t -= pos_small;
+    EXPECT_EQ(to_str(t), "12345678901234567848");
+
+    t = pos_small;
+    t *= pos_medium;
+    EXPECT_EQ(to_str(t), to_str(pos_small * pos_medium));
+
+    t = pos_medium;
+    t /= pos_small;
+    EXPECT_EQ(to_str(t), to_str(pos_medium / pos_small));
+}
+
+// Арифметика с int
 TEST_F(BigIntTest, ArithmeticInt) {
     EXPECT_EQ(to_str(pos_small + 1), "43");
     EXPECT_EQ(to_str(1 + pos_small), "43");
-    
-    // ИСПРАВЛЕННАЯ ПРОВЕРКА: -73 + 100 = 27
     EXPECT_EQ(to_str(neg_small + 100), "27");
+    EXPECT_EQ(to_str(100 + neg_small), "27");
 
-    // Умножение
+    EXPECT_EQ(to_str(pos_small - 1), "41");
+    EXPECT_EQ(to_str(1 - pos_small), "-41");
+    EXPECT_EQ(to_str(neg_small - 100), "-173");
+
     EXPECT_EQ(to_str(pos_small * 3), "126");
     EXPECT_EQ(to_str(3 * pos_small), "126");
+    EXPECT_EQ(to_str(neg_small * 2), "-146");
     
-    // Деление
     EXPECT_EQ(to_str(pos_medium / 2), "6172839450617283945");
     EXPECT_EQ(to_str(BigInt(1000) / pos_small), "23");
+    EXPECT_EQ(to_str(neg_medium / 10), "-9876543210987654321");
 }
 
 TEST_F(BigIntTest, CompoundInt) {
@@ -151,6 +183,11 @@ TEST_F(BigIntTest, IncrementDecrement) {
     EXPECT_EQ(to_str(--t), "43");
     EXPECT_EQ(to_str(t--), "43");
     EXPECT_EQ(to_str(t), "42");
+    
+    // С отрицательными числами
+    BigInt n = neg_small;
+    EXPECT_EQ(to_str(++n), "-72");
+    EXPECT_EQ(to_str(--n), "-73");
 }
 
 // Ввод/вывод
@@ -158,6 +195,10 @@ TEST_F(BigIntTest, IO) {
     std::stringstream ss;
     ss << pos_medium;
     EXPECT_EQ(ss.str(), "12345678901234567890");
+
+    ss.str("");
+    ss << neg_medium;
+    EXPECT_EQ(ss.str(), "-98765432109876543210");
 
     BigInt a;
     ss.str("123456");
@@ -177,28 +218,45 @@ TEST_F(BigIntTest, IO) {
 
 // Граничные случаи
 TEST_F(BigIntTest, Boundaries) {
-    BigInt max1("999999999");
-    BigInt min2("1000000000");
+    EXPECT_EQ(to_str(max_single + BigInt(1)), "1000000000");
+    EXPECT_EQ(to_str(min_double - BigInt(1)), "999999999");
 
-    EXPECT_EQ(to_str(max1 + BigInt(1)), "1000000000");
-    EXPECT_EQ(to_str(min2 - BigInt(1)), "999999999");
-
-    EXPECT_EQ(to_str(max1 * BigInt(2)), "1999999998");
-    EXPECT_EQ(to_str(min2 * BigInt(2)), "2000000000");
+    EXPECT_EQ(to_str(max_single * BigInt(2)), "1999999998");
+    EXPECT_EQ(to_str(min_double * BigInt(2)), "2000000000");
+    
+    // Переход через base при сложении
+    BigInt carry_test("999999999999999999");
+    EXPECT_EQ(to_str(carry_test + BigInt(1)), "1000000000000000000");
 }
 
-// Цепочки
+// Цепочки операций
 TEST_F(BigIntTest, Chained) {
     BigInt r = (pos_small + pos_medium) * BigInt(2) - (neg_small / BigInt(3));
     EXPECT_EQ(to_str(r), to_str((BigInt(42) + pos_medium) * BigInt(2) - (BigInt(-73) / BigInt(3))));
+    
+    // Сложные цепочки
+    BigInt complex = (pos_medium * neg_small) / pos_small + (neg_medium - pos_large);
+    EXPECT_TRUE(complex < zero);
 }
 
 // Исключения
 TEST_F(BigIntTest, Exceptions) {
     EXPECT_THROW(BigInt(""), std::invalid_argument);
     EXPECT_THROW(BigInt("abc"), std::invalid_argument);
+    EXPECT_THROW(BigInt("12a34"), std::invalid_argument);
     EXPECT_THROW(BigInt("--1"), std::invalid_argument);
     EXPECT_THROW(pos_small / zero, std::invalid_argument);
+    EXPECT_THROW(zero / zero, std::invalid_argument);
+}
+
+// Тесты преобразования типов
+TEST_F(BigIntTest, Conversion) {
+    EXPECT_EQ(static_cast<int>(BigInt(123)), 123);
+    EXPECT_EQ(static_cast<int>(BigInt(-456)), -456);
+    EXPECT_EQ(static_cast<int>(zero), 0);
+    
+    EXPECT_EQ(static_cast<long long>(BigInt(1234567890)), 1234567890LL);
+    EXPECT_EQ(static_cast<long long>(BigInt(-1234567890)), -1234567890LL);
 }
 
 int main(int argc, char **argv) {
