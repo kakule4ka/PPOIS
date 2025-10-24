@@ -1,8 +1,12 @@
 #include "vector.h"
+#include <algorithm>
+#include <cmath>
+#include <stdexcept>
+#include <iostream>
 
 vector::vector() : x_(0), y_(0), z_(0) {}
 
-vector::vector(double x_beg, double y_beg, double z_beg, double x_end, double y_end, double z_end) 
+vector::vector(double x_beg, double y_beg, double z_beg, double x_end, double y_end, double z_end)
     : x_(x_end - x_beg), y_(y_end - y_beg), z_(z_end - z_beg) {}
 
 vector::vector(double x, double y, double z) : x_(x), y_(y), z_(z) {}
@@ -62,6 +66,10 @@ vector& vector::operator-=(const vector& vec) {
 
 vector vector::operator*(double value) const {
     return vector{x_ * value, y_ * value, z_ * value};
+}
+
+vector operator*(double value, const vector& vec) {
+    return vec * value;
 }
 
 vector& vector::operator*=(double value) {
@@ -165,21 +173,21 @@ std::istream& operator>>(std::istream& is, vector& vec) {
         is.setstate(std::ios::failbit);
         return is;
     }
-    
+
     double x, y, z;
     char comma1, comma2;
-    
+
     if (!(is >> x >> comma1 >> y >> comma2 >> z) || 
         comma1 != ',' || comma2 != ',') {
         is.setstate(std::ios::failbit);
         return is;
     }
-    
+
     if (!(is >> ch) || ch != '}') {
         is.setstate(std::ios::failbit);
         return is;
     }
-    
+
     vec.x_ = x;
     vec.y_ = y;
     vec.z_ = z;
