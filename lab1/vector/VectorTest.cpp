@@ -1,4 +1,3 @@
-// vector_tests.cpp
 #include <gtest/gtest.h>
 #include "vector.h"
 #include <sstream>
@@ -165,3 +164,4 @@ int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
+
