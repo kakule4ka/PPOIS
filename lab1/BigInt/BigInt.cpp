@@ -3,10 +3,9 @@
 
 const uint32_t BigInt::base = 1000000000u;
 
-BigInt::BigInt(): is_positive(true), number{0} {}
+BigInt::BigInt(): number{0}, is_positive(true){}
 
 BigInt::BigInt(int32_t value) {
- is_positive = (value >= 0);
      if (value<0){
         if (value == INT32_MIN){
             int64_t temp = -value;
@@ -15,6 +14,7 @@ BigInt::BigInt(int32_t value) {
         else number.push_back(static_cast<uint32_t>(-value));
     }
     else number.push_back(static_cast<uint32_t>(value));
+    is_positive = (value >= 0);
 }
 
 BigInt::BigInt(const BigInt& other) : number(other.number), is_positive(other.is_positive) {}
@@ -258,8 +258,7 @@ BigInt BigInt::operator*(const BigInt& other) const {
             result.number[i + j] = static_cast<uint32_t>(product % base);
             carry = product / base;
         }
-        
-        // Распространение переноса
+
         if (carry > 0) {
             result.number[i + other.number.size()] += static_cast<uint32_t>(carry);
         }
@@ -276,10 +275,6 @@ BigInt& BigInt::operator*=(const BigInt& other) {
 
 BigInt operator*(const BigInt& a, int b) {
     return a * BigInt(b);
-}
-
-BigInt operator*(int a, const BigInt& b) {
-    return b * a;
 }
 
 BigInt& BigInt::operator*=(int value) {
