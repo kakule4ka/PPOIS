@@ -1,6 +1,6 @@
 // vector_tests.cpp
 #include <gtest/gtest.h>
-#include "vector.h"
+#include "Vector.h"
 #include <sstream>
 #include <cmath>
 
