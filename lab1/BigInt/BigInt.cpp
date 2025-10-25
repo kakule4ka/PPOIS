@@ -6,17 +6,15 @@ const uint32_t BigInt::base = 1000000000u;
 BigInt::BigInt(): is_positive(true), number{0} {}
 
 BigInt::BigInt(int32_t value) {
-    if (value == 0) {
-        is_positive = true;
-        number.push_back(0);
-        return;
+ is_positive = (value >= 0);
+     if (value<0){
+        if (value == INT32_MIN){
+            int64_t temp = -value;
+            number.push_back(static_cast<uint32_t>(temp));
+        }
+        else number.push_back(static_cast<uint32_t>(-value));
     }
-
-    is_positive = (value >= 0);
-
-    int64_t tmp = value;
-    uint32_t abs_value = static_cast<uint32_t>(tmp < 0 ? -tmp : tmp);
-    number.push_back(abs_value);
+    else number.push_back(static_cast<uint32_t>(value));
 }
 
 BigInt::BigInt(const BigInt& other) : number(other.number), is_positive(other.is_positive) {}
@@ -136,7 +134,6 @@ BigInt& BigInt::operator-= (const BigInt& other) {
     return *this;
 }
 
-// ИСПРАВЛЕННОЕ сложение BigInt + int
 BigInt BigInt::operator+ (const int& value) const {
     return *this + BigInt(value);
 }
@@ -150,7 +147,6 @@ BigInt operator+ (int lhs, const BigInt& rhs) {
     return rhs + lhs;
 }
 
-// ИСПРАВЛЕННОЕ вычитание BigInt - int
 BigInt BigInt::operator- (const int& value) const {
     return *this - BigInt(value);
 }
@@ -246,7 +242,6 @@ bool operator!=(int value, const BigInt& big) {
     return BigInt(value) != big;
 }
 
-// ИСПРАВЛЕННОЕ умножение BigInt × BigInt
 BigInt BigInt::operator*(const BigInt& other) const {
     if (*this == BigInt(0) || other == BigInt(0)) {
         return BigInt(0);
@@ -279,7 +274,6 @@ BigInt& BigInt::operator*=(const BigInt& other) {
     return *this;
 }
 
-// ИСПРАВЛЕННОЕ умножение BigInt × int
 BigInt operator*(const BigInt& a, int b) {
     return a * BigInt(b);
 }
@@ -293,7 +287,6 @@ BigInt& BigInt::operator*=(int value) {
     return *this;
 }
 
-// ИСПРАВЛЕННОЕ деление
 BigInt BigInt::operator/(const BigInt& other) const {
     if (other == BigInt(0)) {
         throw std::invalid_argument("Division by zero");
@@ -346,7 +339,6 @@ BigInt& BigInt::operator/=(const BigInt& other) {
     return *this;
 }
 
-// ИСПРАВЛЕННОЕ деление BigInt / int
 BigInt operator/(const BigInt& a, int b) {
     return a / BigInt(b);
 }
