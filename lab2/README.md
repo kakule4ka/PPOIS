@@ -1,6 +1,3 @@
-```markdown
-# Полный список классов строительной компании
-
 ## Классы:
 
 1. **ConstructionCompany** (полей: 5, методов: 4) -> ConstructionProject, Employee
